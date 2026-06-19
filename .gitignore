@@ -1,0 +1,11 @@
+# Local Jira/Confluence snapshots and generated run artifacts.
+framework/runs/
+framework/comparisons/
+framework/data/*snapshot*.json
+framework/data/raw/
+
+# Local environment/config overrides.
+.env
+*.local.yaml
+*.local.yml
+

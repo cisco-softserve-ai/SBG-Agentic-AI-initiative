@@ -1,0 +1,66 @@
+# Default run configuration for the Jira Routine AI Opportunity Framework.
+
+framework:
+  version: 0.1.0
+  prompt_source: ../../Master prompt.md
+  jira_cloud: https://cisco-sbg.atlassian.net
+  confluence_team_catalog:
+    url: https://cisco-sbg.atlassian.net/wiki/spaces/PROD/pages/1294373378/Umbrella+SSE+Eng+Team+Information
+    page_id: "1294373378"
+    space: PROD
+
+analysis_defaults:
+  unit: team
+  report_shape: team_rollup_with_project_isolated_clusters
+  period: current_cisco_fiscal_quarter
+  cisco_fiscal_year_start_month: 8
+  included_issue_types:
+    - Task
+    - Bug
+    - Story
+    - Support
+    - Sub-task
+    - Improvement
+    - Incident
+    - Security Case
+    - Customer Escalation Engagement
+  done_statuses:
+    - Done
+    - Closed
+    - Resolved
+    - Released
+    - Completed
+  excluded_projects: []
+  expand_scope_by_assignee: true
+  project_isolated_clustering: true
+  team_rollup_metrics: true
+  labels_for_classification: false
+
+storage:
+  keep_raw_issue_snapshots: true
+  raw_snapshots_git_ignored: true
+  write_markdown_report: true
+  write_json_metrics: true
+  publish_to_confluence: false
+
+comparison_defaults:
+  enabled: true
+  compare_with:
+    - previous_run_in_same_quarter
+    - previous_quarter_latest_run
+  include:
+    - total_issues
+    - routine_issues
+    - routine_ratio
+    - cluster_count
+    - cluster_volume_changes
+    - new_clusters
+    - removed_clusters
+    - top_ai_candidates
+    - risk_classification_changes
+    - data_quality_changes
+    - lead_time_changes
+    - cycle_time_availability_changes
+    - worklog_availability_changes
+    - recommendation_changes
+  evidence_only: true
