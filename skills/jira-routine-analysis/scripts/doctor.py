@@ -44,6 +44,10 @@ def find_jira_cli() -> str | None:
     return None
 
 
+def rest_client(root: Path) -> Path:
+    return root / "skills/jira-routine-analysis/scripts/jira_rest.py"
+
+
 def run(command: list[str], cwd: Path) -> tuple[int, str]:
     try:
         completed = subprocess.run(
@@ -104,12 +108,22 @@ def main() -> int:
         checks.append(("cisco_fiscal_period", False, str(exc)))
 
     jira_cli = find_jira_cli()
-    checks.append(("jira_cli_found", jira_cli is not None, jira_cli or "Set JIRA_CLI or install jira-cli"))
+    checks.append(("jira_cli_found", jira_cli is not None, jira_cli or "optional; bundled REST fallback will be checked"))
+    cli_auth_ok = False
 
     if jira_cli:
         code, output = run([jira_cli, "whoami"], root)
-        auth_ok = code == 0 and "Authenticated as" in output
-        checks.append(("jira_auth", auth_ok, "whoami ok" if auth_ok else output[:500]))
+        cli_auth_ok = code == 0 and "Authenticated as" in output
+        checks.append(("jira_cli_auth", cli_auth_ok, "whoami ok" if cli_auth_ok else output[:500]))
+
+    rest_path = rest_client(root)
+    checks.append(("bundled_jira_rest_client", rest_path.exists(), str(rest_path.relative_to(root))))
+    code, output = run([sys.executable, str(rest_path), "whoami"], root) if rest_path.exists() else (1, "missing")
+    rest_auth_ok = code == 0
+    checks.append(("jira_rest_auth", rest_auth_ok, "whoami ok" if rest_auth_ok else output[:500]))
+
+    jira_ready = cli_auth_ok or rest_auth_ok
+    checks.append(("jira_read_access", jira_ready, "jira-cli or bundled REST client authenticated"))
 
     print("Jira Routine Analysis setup check")
     print(f"Jira scope: {JIRA_URL}")
@@ -121,8 +135,9 @@ def main() -> int:
 
     if failed:
         print("\nNext steps:")
-        print("- Install or configure jira-cli if missing.")
-        print("- Run jira-cli config for cisco-sbg.atlassian.net if auth fails.")
+        print("- Either configure jira-cli, or use the bundled REST client.")
+        print("- For REST auth, set ATLASSIAN_ACCOUNT and JIRA_TOKEN.")
+        print("- On macOS, you can store a token in Keychain service 'jira-api-token'.")
         print("- Re-run this doctor before analysis.")
         return 1
 
@@ -132,4 +147,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

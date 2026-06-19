@@ -46,4 +46,19 @@ Then verify setup from the repo root:
 python3 skills/jira-routine-analysis/scripts/doctor.py
 ```
 
-The verifier checks repo layout, Cisco fiscal-quarter defaults, generated output folders, Jira CLI discovery, and Jira authentication.
+The verifier checks repo layout, Cisco fiscal-quarter defaults, generated output folders, Jira CLI discovery, bundled REST fallback, and Jira authentication.
+
+Jira access works in either mode:
+
+- `jira-cli`, if already installed and configured.
+- Bundled REST client using `ATLASSIAN_ACCOUNT` and `JIRA_TOKEN`.
+
+For REST mode:
+
+```bash
+export ATLASSIAN_ACCOUNT="you@example.com"
+export JIRA_TOKEN="<atlassian-api-token>"
+python3 skills/jira-routine-analysis/scripts/doctor.py
+```
+
+On macOS, the REST client can also read the token from Keychain service `jira-api-token` for the configured account.

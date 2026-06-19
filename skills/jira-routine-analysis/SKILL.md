@@ -1,6 +1,6 @@
 ---
 name: jira-routine-analysis
-description: Run this repository's Jira routine-work and AI opportunity framework for team- or project-based analysis. Use when the user asks to analyze Jira project(s), team Jira work, routine task candidates, AI offload opportunities, Jira ROI, historical run comparison, or progress over time. Supports Jira project keys and optional timeframe input; default timeframe is the current Cisco fiscal quarter. On first use, verify repository setup, Jira CLI availability/authentication, and output folders before collecting data.
+description: Run this repository's Jira routine-work and AI opportunity framework for team- or project-based analysis. Use when the user asks to analyze Jira project(s), team Jira work, routine task candidates, AI offload opportunities, Jira ROI, historical run comparison, or progress over time. Supports Jira project keys and optional timeframe input; default timeframe is the current Cisco fiscal quarter. On first use, verify repository setup, bundled scripts, Jira CLI or REST authentication, and output folders before collecting data.
 ---
 
 # Jira Routine Analysis
@@ -13,7 +13,7 @@ Before analysis, run the setup verifier from the repository root:
 python3 skills/jira-routine-analysis/scripts/doctor.py
 ```
 
-If it reports a missing Jira CLI or failed auth, help the user fix that before continuing. Do not collect Jira data until read-only Jira access is verified.
+If it reports failed Jira auth, help the user configure either `jira-cli` or the bundled REST client before continuing. Do not collect Jira data until read-only Jira access is verified.
 
 ## Inputs
 
@@ -52,12 +52,22 @@ If the current directory is not the repository root, search upward for `Master p
 
 Use only `https://cisco-sbg.atlassian.net`.
 
-Resolve Jira CLI in this order:
+Resolve Jira access in this order:
 
 1. `JIRA_CLI` environment variable
 2. `jira-cli` on `PATH`
 3. `~/.agents/skills/jira-issues/scripts/jira-cli`
 4. `~/.codex/skills/jira-issues/scripts/jira-cli`
+5. bundled REST client: `skills/jira-routine-analysis/scripts/jira_rest.py`
+
+For the bundled REST client, use:
+
+```bash
+export ATLASSIAN_ACCOUNT="you@example.com"
+export JIRA_TOKEN="<atlassian-api-token>"
+```
+
+On macOS, the REST client can also read `JIRA_TOKEN` from Keychain service `jira-api-token` for `ATLASSIAN_ACCOUNT`.
 
 Use read-only Jira commands unless the user explicitly asks for writes.
 
@@ -104,6 +114,16 @@ created, updated, resolutiondate, epicLink, labels
 
 If richer metrics are needed and available, also collect changelog, comments, and worklogs. If unavailable, report the data gap; do not invent cycle time, rework, or hours saved.
 
+When `jira-cli` is unavailable, collect with:
+
+```bash
+python3 skills/jira-routine-analysis/scripts/jira_rest.py search \
+  --jql '<JQL>' \
+  --fields 'key,project,issuetype,summary,status,priority,assignee,created,updated,resolutiondate,labels' \
+  --limit 1000 \
+  --output <issues.json>
+```
+
 ## Storage
 
 Store generated artifacts under:
@@ -139,4 +159,3 @@ When asked to compare runs, compare evidence only:
 - recommendation changes
 
 If a metric is missing or scopes differ, mark it `Not comparable` and explain why.
-
