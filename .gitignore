@@ -4,8 +4,11 @@ framework/comparisons/
 framework/data/*snapshot*.json
 framework/data/raw/
 
+# Generated analysis reports are local by default; keep report templates tracked.
+reports/*.md
+!reports/*template*.md
+
 # Local environment/config overrides.
 .env
 *.local.yaml
 *.local.yml
-
