@@ -1,5 +1,4 @@
 interface:
   display_name: "Jira Routine Analysis"
-  short_description: "Run Jira AI opportunity analysis"
-  default_prompt: "Use $jira-routine-analysis to analyze Jira project REDIS for the current Cisco fiscal quarter."
-
+  short_description: "Analyze Jira routine work by contributors"
+  default_prompt: "Use $jira-routine-analysis to analyze routine Jira work for these engineers: <Name Surname>, <Name Surname>. Confirm the scope with me before querying Jira."
